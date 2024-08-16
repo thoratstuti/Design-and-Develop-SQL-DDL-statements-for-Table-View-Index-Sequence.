@@ -1,12 +1,10 @@
-/*Experiment no.:
-  Name: STUTI THORAT
-  Roll no:88
+
 ****************************************************************
 Q. Design atleast 10 SQl queries for suitable database 
    application using SQL DML statements: INSERT,SELECT,UPDATE,DELETE WITH    OPERTAORS,FUNCTIONS AND SET OPERATORS.
    
 ****************************************************************
-*/
+
 
 
 [student@localhost ~]$ su
