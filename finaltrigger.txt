@@ -1,0 +1,200 @@
+
+****************************************************************
+Q. Write a database trigger on Library table .The System should 
+   keep track of the records that are being updated or deleted.
+   The old value of updated or deleted records should be added in
+   Library_Audit table.
+****************************************************************
+
+
+
+mysql> create database trigger1;
+Query OK, 1 row affected (0.10 sec)
+
+
+mysql> use trigger1;
+Database changed
+
+mysql> create table library(bid int(10),bname char(20),bauthor char(20),cost int(10),publisher char(20),primary key(bid));
+Query OK, 0 rows affected (1.15 sec)
+
+mysql> create table library_audit(bid int(10),bname char(20),bauthor char(20),cost int(10),publisher char(20),operation char(10),primary key(bid));
+Query OK, 0 rows affected (0.70 sec)
+
+mysql> insert into library values(1,'dbms','korth',500,'technical');
+Query OK, 1 row affected (0.17 sec)
+
+mysql> create trigger trig_update after update on library for each row insert into library_audit values(old.bid,old.bname,old.bauthor,old.cost,old.publisher,"update");
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> select * from library_audit;
+Empty set (0.01 sec)
+
+mysql> select * from library;
++-----+-------+---------+------+-----------+
+| bid | bname | bauthor | cost | publisher |
++-----+-------+---------+------+-----------+
+|   1 | dbms  | korth   |  500 | technical |
++-----+-------+---------+------+-----------+
+1 row in set (0.10 sec)
+
+mysql> insert into library values(2,'sepm','pressman',400,'techmax');
+Query OK, 1 row affected (0.21 sec)
+
+mysql> select *from library;
++-----+-------+----------+------+-----------+
+| bid | bname | bauthor  | cost | publisher |
++-----+-------+----------+------+-----------+
+|   1 | dbms  | korth    |  500 | technical |
+|   2 | sepm  | pressman |  400 | techmax   |
++-----+-------+----------+------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> update library set cost=600 where bid=1;
+Query OK, 1 row affected (0.16 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from library_audit;
++-----+-------+---------+------+-----------+-----------+
+| bid | bname | bauthor | cost | publisher | operation |
++-----+-------+---------+------+-----------+-----------+
+|   1 | dbms  | korth   |  500 | technical | update    |
++-----+-------+---------+------+-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> select *from library;
++-----+-------+----------+------+-----------+
+| bid | bname | bauthor  | cost | publisher |
++-----+-------+----------+------+-----------+
+|   1 | dbms  | korth    |  600 | technical |
+|   2 | sepm  | pressman |  400 | techmax   |
++-----+-------+----------+------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> create trigger trig_delete before delete on library for each row insert into library_audit values(old.bid,old.bname,old.bauthor,old.cost,old.publisher,"Delete");
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> delete from library where bid=2;
+Query OK, 1 row affected (0.24 sec)
+
+mysql> select *from library;
++-----+-------+---------+------+-----------+
+| bid | bname | bauthor | cost | publisher |
++-----+-------+---------+------+-----------+
+|   1 | dbms  | korth   |  600 | technical |
++-----+-------+---------+------+-----------+
+1 row in set (0.00 sec)
+
+mysql> select *from library_audit;
++-----+-------+----------+------+-----------+-----------+
+| bid | bname | bauthor  | cost | publisher | operation |
++-----+-------+----------+------+-----------+-----------+
+|   1 | dbms  | korth    |  500 | technical | update    |
+|   2 | sepm  | pressman |  400 | techmax   | Delete    |
++-----+-------+----------+------+-----------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> insert into library values(2,'sepm','pressman',400,'Mcgrawhill');
+Query OK, 1 row affected (0.23 sec)
+
+
+mysql> insert into library values(3,'CN','frouzen',800,'Schilbtz');
+Query OK, 1 row affected (0.21 sec)
+
+mysql> insert into library values(4,'c++','balguruswami',600,'Pearson');
+Query OK, 1 row affected (0.16 sec)
+
+mysql> select *from library;
++-----+-------+--------------+------+------------+
+| bid | bname | bauthor      | cost | publisher  |
++-----+-------+--------------+------+------------+
+|   1 | dbms  | korth        |  600 | technical  |
+|   2 | sepm  | pressman     |  400 | Mcgrawhill |
+|   3 | CN    | frouzen      |  800 | Schilbtz   |
+|   4 | c++   | balguruswami |  600 | Pearson    |
++-----+-------+--------------+------+------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from library_audit;
++-----+-------+----------+------+-----------+-----------+
+| bid | bname | bauthor  | cost | publisher | operation |
++-----+-------+----------+------+-----------+-----------+
+|   1 | dbms  | korth    |  500 | technical | update    |
+|   2 | sepm  | pressman |  400 | techmax   | Delete    |
++-----+-------+----------+------+-----------+-----------+
+2 rows in set (0.00 sec)
+
+
+mysql> create table coun1t(book_count int(10));
+Query OK, 0 rows affected (0.57 sec)
+
+mysql> drop table coun1t;
+Query OK, 0 rows affected (0.47 sec)
+
+mysql> create table count1(book_count int(10));
+Query OK, 0 rows affected (0.40 sec)
+
+mysql> create trigger trig_insert after insert on library for each row update count1 set book_count=book_count+1;
+Query OK, 0 rows affected (0.19 sec)
+
+mysql> insert into count1 values(0);
+Query OK, 1 row affected (0.17 sec)
+
+mysql> select count(*) from library;
++----------+
+| count(*) |
++----------+
+|        4 |
++----------+
+1 row in set (0.10 sec)
+
+mysql> select *from count1;
++------------+
+| book_count |
++------------+
+|          0 |
++------------+
+1 row in set (0.00 sec)
+
+
+mysql> insert into library values(5,'SEPM','Pressman',400,'Samuels');
+Query OK, 1 row affected (0.17 sec)
+
+mysql> select *from count1;
++------------+
+| book_count |
++------------+
+|          1 |
++------------+
+1 row in set (0.00 sec)
+
+
+mysql> create TRIGGER trig_insert1 AFTER INSERT ON library FOR EACH ROW insert into library_audit values(bid,bname,bauthor,cost,publisher,"INSERT");
+Query OK, 0 rows affected (0.28 sec)
+
+mysql> select *from library;
++-----+-------+--------------+------+------------+
+| bid | bname | bauthor      | cost | publisher  |
++-----+-------+--------------+------+------------+
+|   1 | dbms  | korth        |  600 | technical  |
+|   2 | sepm  | pressman     |  400 | Mcgrawhill |
+|   3 | CN    | frouzen      |  800 | Schilbtz   |
+|   4 | c++   | balguruswami |  600 | Pearson    |
+|   5 | SEPM  | Pressman     |  400 | Samuels    |
++-----+-------+--------------+------+------------+
+5 rows in set (0.00 sec)
+
+mysql> insert into library values(6,'AuditCourse','Gikwad',100,'Mane');
+Query OK, 1 row affected (0.12 sec)
+
+mysql> select *from library_audit;
++-----+-------+----------+------+-----------+-----------+
+| bid | bname | bauthor  | cost | publisher | operation |
++-----+-------+----------+------+-----------+-----------+
+|   0 | NULL  | NULL     | NULL | NULL      | INSERT    |
+|   1 | dbms  | korth    |  500 | technical | update    |
+|   2 | sepm  | pressman |  400 | techmax   | Delete    |
++-----+-------+----------+------+-----------+-----------+
+3 rows in set (0.00 sec)
+
+mysql>
