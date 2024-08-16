@@ -1,0 +1,246 @@
+
+
+****************************************************************
+Q. Design atleast 10 SQl queries for suitable database 
+   application using SQL DML statements:
+   All types of Join,Sub-Query and View
+****************************************************************
+
+
+create table physician(regno int(60) primary key,name char(60),telno int(60),city char(60));
+Query OK, 0 rows affected (0.71 sec)
+
+mysql> create table patient(pid int(60) primary key,pname char(60),street char(60),city char(60));
+Query OK, 0 rows affected (0.92 sec)
+
+mysql> create table visit(pid int(60),regno int(60),dateofvisit date,fee int(60),foreign key(pid) references patient(pid),foreign key(regno) references physician(regno));
+Query OK, 0 rows affected (2.57 sec)
+
+
+insert into physician values(1,'moni',234562,'pune');
+ insert into physician values(2,'tony',237862,'mumbai');
+Query OK, 1 row affected (0.14 sec)
+
+mysql> insert into physician values(3,'gracy',277862,'kolhhapur');
+Query OK, 1 row affected (0.23 sec)
+
+ insert into patient values(1,'hannah','kp_road','hyderabad');
+Query OK, 1 row affected (0.33 sec)
+
+mysql> insert into patient values(2,'courtney','laxmi_road','pune');
+Query OK, 1 row affected (0.36 sec)
+
+mysql> insert into patient values(3,'jenni','mg_road','nagpur');
+Query OK, 1 row affected (0.29 sec)
+ insert into visit values(1,3,'2017-07-13',20000);
+Query OK, 1 row affected (1.08 sec)
+
+mysql> insert into visit values(2,3,'2018-04-03',30000);
+Query OK, 1 row affected (2.24 sec)
+
+mysql> insert into visit values(3,1,'2018-02-02',10000);
+Query OK, 1 row affected (2.00 sec)
+
+
+ select *from physician;
++-------+-------+--------+-----------+
+| regno | name  | telno  | city      |
++-------+-------+--------+-----------+
+|     1 | moni  | 234562 | pune      |
+|     2 | tony  | 237862 | mumbai    |
+|     3 | gracy | 277862 | kolhhapur |
++-------+-------+--------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> select *from visit;
++------+-------+-------------+-------+
+| pid  | regno | dateofvisit | fee   |
++------+-------+-------------+-------+
+|    1 |     3 | 2017-07-13  | 20000 |
+|    2 |     3 | 2018-04-03  | 30000 |
+|    3 |     1 | 2018-02-02  | 10000 |
++------+-------+-------------+-------+
+3 rows in set (0.00 sec)
+mysql> select *from patient;
++-----+----------+------------+-----------+
+| pid | pname    | street     | city      |
++-----+----------+------------+-----------+
+|   1 | hannah   | kp_road    | hyderabad |
+|   2 | courtney | laxmi_road | pune      |
+|   3 | jenni    | mg_road    | nagpur    |
++-----+----------+------------+-----------+
+3 rows in set (0.00 sec)
+ select pname,city from patient where pid=(select pid from visit where dateofvisit='2017-07-13');
++--------+-----------+
+| pname  | city      |
++--------+-----------+
+| hannah | hyderabad |
++--------+-----------+
+1 row in set (0.00 sec)
+
+> select p1.regno,p1.name,v.pid,v.dateofvisit from physician p1 inner join  visit v on v.regno=p1.regno ;
++-------+-------+------+-------------+
+| regno | name  | pid  | dateofvisit |
++-------+-------+------+-------------+
+|     1 | moni  |    3 | 2018-02-02  |
+|     3 | gracy |    1 | 2017-07-13  |
+|     3 | gracy |    2 | 2018-04-03  |
++-------+-------+------+-------------+
+3 rows in set (0.00 sec)
+
+
+
+mysql> select p1.regno,p1.name,v.pid,v.dateofvisit from physician p1 left outer join  visit v on v.regno=p1.regno ;
++-------+-------+------+-------------+
+| regno | name  | pid  | dateofvisit |
++-------+-------+------+-------------+
+|     1 | moni  |    3 | 2018-02-02  |
+|     2 | tony  | NULL | NULL        |
+|     3 | gracy |    1 | 2017-07-13  |
+|     3 | gracy |    2 | 2018-04-03  |
++-------+-------+------+-------------+
+4 rows in set (0.00 sec)
+
+mysql> select p1.regno,p1.name,v.pid,v.dateofvisit from physician p1 right outer join  visit v on v.regno=p1.regno ;
++-------+-------+------+-------------+
+| regno | name  | pid  | dateofvisit |
++-------+-------+------+-------------+
+|     3 | gracy |    1 | 2017-07-13  |
+|     3 | gracy |    2 | 2018-04-03  |
+|     1 | moni  |    3 | 2018-02-02  |
++-------+-------+------+-------------+
+3 rows in set (0.00 sec)
+
+
+
+
+mysql> select p1.regno,p1.name,v.pid,v.dateofvisit from physician p1 left outer join  visit v on v.regno=p1.regno union select p1.regno,p1.name,v.pid,v.dateofvisit from physician p1 right outer join  visit v on v.regno=p1.regno ; ;
++-------+-------+------+-------------+
+| regno | name  | pid  | dateofvisit |
++-------+-------+------+-------------+
+|     3 | gracy |    1 | 2017-07-13  |
+|     3 | gracy |    2 | 2018-04-03  |
+|     1 | moni  |    3 | 2018-02-02  |
+|     2 | tony  | NULL | NULL        |
++-------+-------+------+-------------+
+4 rows in set (0.00 sec)
+
+
+mysql> select p2.pname,p2.city,v.regno,v.dateofvisit from patient p2 inner join visit v on p2.pid=v.pid;
++----------+-----------+-------+-------------+
+| pname    | city      | regno | dateofvisit |
++----------+-----------+-------+-------------+
+| hannah   | hyderabad |     3 | 2017-07-13  |
+| courtney | pune      |     3 | 2018-04-03  |
+| jenni    | nagpur    |     1 | 2018-02-02  |
++----------+-----------+-------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> select p2.pname,p2.city,v.regno,v.dateofvisit from patient p2 left outer join visit v on p2.pid=v.pid;
++----------+-----------+-------+-------------+
+| pname    | city      | regno | dateofvisit |
++----------+-----------+-------+-------------+
+| hannah   | hyderabad |     3 | 2017-07-13  |
+| courtney | pune      |     3 | 2018-04-03  |
+| jenni    | nagpur    |     1 | 2018-02-02  |
++----------+-----------+-------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> select p2.pname,p2.city,v.regno,v.dateofvisit from patient p2 right outer join visit v on p2.pid=v.pid;
++----------+-----------+-------+-------------+
+| pname    | city      | regno | dateofvisit |
++----------+-----------+-------+-------------+
+| hannah   | hyderabad |     3 | 2017-07-13  |
+| courtney | pune      |     3 | 2018-04-03  |
+| jenni    | nagpur    |     1 | 2018-02-02  |
++----------+-----------+-------+-------------+
+3 rows in set (0.00 sec)
+
+
+mysql> select p2.pname,p2.city,v.regno,v.dateofvisit from patient p2 left outer join visit v on p2.pid=v.pid union select p2.pname,p2.city,v.regno,v.dateofvisit from patient p2 right outer join visit v on p2.pid=v.pid;
++----------+-----------+-------+-------------+
+| pname    | city      | regno | dateofvisit |
++----------+-----------+-------+-------------+
+| hannah   | hyderabad |     3 | 2017-07-13  |
+| courtney | pune      |     3 | 2018-04-03  |
+| jenni    | nagpur    |     1 | 2018-02-02  |
++----------+-----------+-------+-------------+
+3 rows in set (0.00 sec)
+
+
+
+mysql> select p.name,count(v.regno) from physician p,visit v where p.regno=1 and p.regno=v.regno;
++------+----------------+
+| name | count(v.regno) |
++------+----------------+
+| moni |              1 |
++------+----------------+
+1 row in set (0.00 sec)
+
+
+mysql> select p.name,count(v.regno) from physician p,visit v where p.regno=2 and p.regno=v.regno;
++------+----------------+
+| name | count(v.regno) |
++------+----------------+
+| NULL |              0 |
++------+----------------+
+1 row in set (0.00 sec)
+
+mysql> select p.name,count(v.regno) from physician p,visit v where p.regno=3 and p.regno=v.regno;
++-------+----------------+
+| name  | count(v.regno) |
++-------+----------------+
+| gracy |              2 |
++-------+----------------+
+1 row in set (0.00 sec)
+
+
+mysql> select dateofvisit ,sum(fee) from visit group by dateofvisit;
++-------------+----------+
+| dateofvisit | sum(fee) |
++-------------+----------+
+| 2017-07-13  |    20000 |
+| 2018-04-03  |    30000 |
+| 2018-02-02  |    10000 |
++-------------+----------+
+3 rows in set (0.10 sec)
+
+mysql> create view v1 as select dateofvisit,fee from visit;
+Query OK, 0 rows affected (0.37 sec)
+
+mysql> select *from v1;
++-------------+-------+
+| dateofvisit | fee   |
++-------------+-------+
+| 2017-07-13  | 20000 |
+| 2018-04-03  | 30000 |
+| 2018-02-02  | 10000 |
++-------------+-------+
+3 rows in set (0.02 sec)
+
+mysql> create view v3 as select p.pname,v.regno,v.dateofvisit from patient p, visit v where p.pid=v.pid;
+Query OK, 0 rows affected (0.25 sec)
+
+mysql> select *from v3;
++----------+-------+-------------+
+| pname    | regno | dateofvisit |
++----------+-------+-------------+
+| hannah   |     3 | 2017-07-13  |
+| courtney |     3 | 2018-04-03  |
+| jenni    |     1 | 2018-02-02  |
++----------+-------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> update v3 set pname="simi" where regno=1;
+Query OK, 1 row affected (0.41 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select *from v3;
++----------+-------+-------------+
+| pname    | regno | dateofvisit |
++----------+-------+-------------+
+| hannah   |     3 | 2017-07-13  |
+| courtney |     3 | 2018-04-03  |
+| simi     |     1 | 2018-02-02  |
++----------+-------+-------------+
+3 rows in set (0.00 sec)
